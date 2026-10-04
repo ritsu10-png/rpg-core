@@ -18,17 +18,26 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
+      - name: Extract rpg_core
+        run: |
+          mkdir -p project
+          unzip -q rpg_core.zip -d project
+          echo "Project contents:"
+          find project -maxdepth 2 -type f | sort
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
 
       - name: Build
-        run: ./gradlew build --no-daemon
+        working-directory: project
+        run: gradle build --no-daemon
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: rpg_core-jar
-          path: build/libs/*.jar
+          path: project/build/libs/*.jar
           if-no-files-found: error
